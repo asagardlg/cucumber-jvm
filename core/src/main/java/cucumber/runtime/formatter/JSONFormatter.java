@@ -30,7 +30,12 @@ import gherkin.pickles.PickleRow;
 import gherkin.pickles.PickleString;
 import gherkin.pickles.PickleTable;
 import gherkin.pickles.PickleTag;
+import org.apache.commons.io.IOUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,6 +56,7 @@ final class JSONFormatter implements EventListener {
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private final NiceAppendable out;
     private final TestSourcesModel testSources = new TestSourcesModel();
+    private static int count =0;
     
     private EventHandler<TestSourceRead> testSourceReadHandler = new EventHandler<TestSourceRead>() {
         @Override
@@ -172,6 +178,12 @@ final class JSONFormatter implements EventListener {
     private void finishReport() {
         out.append(gson.toJson(featureMaps));
         out.close();
+        try {
+            IOUtils.copy(new FileInputStream(new File("target/cucumber.json")),new FileOutputStream(new File((count+1)+".json")));
+            count++;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private Map<String, Object> createFeatureMap(TestCase testCase) {
